@@ -12,6 +12,7 @@ const main = async () => {
     await migrate(db as never, { migrationsFolder: "src/database/migrations" });
 
     console.log("Migration completed");
+    process.exit(0);
   } catch (error) {
     console.error("Error during migration:", error);
     process.exit(1);
