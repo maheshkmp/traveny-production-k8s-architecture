@@ -75,6 +75,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 15m
+          envs: GITHUB_ACTOR,GITHUB_TOKEN
           script: |
             set -e
             echo "🚀 Starting Kubernetes deployment..."
@@ -85,6 +86,14 @@ jobs:
             fi
             cd $HOME/traveny
             git fetch origin main && git reset --hard origin/main
+
+            # Create namespace & GHCR Image Pull Secret
+            kubectl create namespace traveny || true
+            kubectl create secret docker-registry regcred \
+              --docker-server=ghcr.io \
+              --docker-username="$GITHUB_ACTOR" \
+              --docker-password="$GITHUB_TOKEN" \
+              -n traveny --dry-run=client -o yaml | kubectl apply -f -
 
             # 2. Install cert-manager & apply all Kubernetes manifests
             echo "🔐 Ensuring cert-manager CRDs are installed..."
