@@ -11,7 +11,7 @@ provider "aws" {
   region = var.region
 }
 
-# ── Data Source: Ubuntu 24.04 LTS AMI ──
+# Data Source: Ubuntu 24.04 LTS AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
@@ -26,7 +26,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# ── VPC Networking ──
+# VPC Networking
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -77,7 +77,7 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# ── Security Group ──
+#  Security Group 
 resource "aws_security_group" "k8s" {
   name        = "traveny-k8s-sg"
   description = "Security group for Single-Node Kubeadm Kubernetes Cluster"
@@ -129,13 +129,13 @@ resource "aws_security_group" "k8s" {
   }
 }
 
-# ── SSH Key Pair ──
+# SSH Key Pair
 resource "aws_key_pair" "k8s" {
   key_name   = "traveny-k8s-key"
   public_key = file(var.ssh_public_key_path)
 }
 
-# ── EC2 Single-Node K8s Server ──
+# EC2 Single-Node K8s Server
 resource "aws_instance" "k8s_node" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
@@ -163,7 +163,7 @@ resource "aws_instance" "k8s_node" {
   }
 }
 
-# ── Elastic IP (Static Public Address) ──
+# Elastic IP (Static Public Address)
 resource "aws_eip" "k8s_eip" {
   instance = aws_instance.k8s_node.id
   domain   = "vpc"

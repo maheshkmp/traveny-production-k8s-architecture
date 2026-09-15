@@ -1,4 +1,4 @@
-# ── Stage 1: builder ───────────────────────────────────────
+# Stage 1: builder
 FROM oven/bun:1 AS builder
 WORKDIR /app
 
@@ -9,8 +9,7 @@ COPY packages/core/package.json ./packages/core/
 
 RUN bun install --frozen-lockfile --backend=copyfile --network-concurrency=8
 
-# Set NODE_ENV here so Bun bakes it into the compiled bundle.
-# Bun substitutes process.env.* at BUILD TIME, so runtime env vars won't override it.
+
 ENV NODE_ENV=production
 
 COPY . .
@@ -36,7 +35,7 @@ RUN bun build packages/core/src/database/migrate.ts \
   --external @neondatabase/serverless \
   --external ws
 
-# ── Stage 3: runner ────────────────────────────────────────
+# Stage 3: runner
 FROM oven/bun:1-slim AS runner
 WORKDIR /app
 

@@ -11,7 +11,7 @@ env:
   IMAGE_PREFIX: ghcr.io/maheshkmp/traveny
 
 jobs:
-  # ── Job 1: Build images in CI and push to GHCR ──────────────
+  # Job 1: Build images in CI and push to GHCR
   build:
     name: Build & Push Images
     runs-on: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
-  # ── Job 2: Deploy to AWS EC2 Kubernetes Cluster ─────────────
+  # Job 2: Deploy to AWS EC2 Kubernetes Cluster
   deploy:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
