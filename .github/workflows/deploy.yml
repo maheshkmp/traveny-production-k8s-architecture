@@ -70,6 +70,9 @@ jobs:
     steps:
       - name: Deploy via SSH to EC2 Kubernetes Node
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
           username: ubuntu
