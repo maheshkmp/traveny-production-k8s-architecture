@@ -89,9 +89,16 @@ jobs:
             # 2. Install cert-manager & apply all Kubernetes manifests
             echo "🔐 Ensuring cert-manager CRDs are installed..."
             kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
-            kubectl wait --for=condition=available --timeout=60s deployment/cert-manager-webhook -n cert-manager || true
+            kubectl rollout status deployment/cert-manager -n cert-manager --timeout=120s
+            kubectl rollout status deployment/cert-manager-cainjector -n cert-manager --timeout=120s
+            kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=120s
+            echo "⏳ Waiting 15 seconds for cert-manager webhook certificates to stabilize..."
+            sleep 15
 
-            kubectl apply -f k8s/cluster-issuer.yaml
+            # Apply ClusterIssuer with retry to prevent webhook certificate race condition
+            for i in {1..5}; do
+              kubectl apply -f k8s/cluster-issuer.yaml && break || sleep 5
+            done
             kubectl apply -f k8s/db.yaml
             kubectl apply -f k8s/api.yaml
             kubectl apply -f k8s/web.yaml
