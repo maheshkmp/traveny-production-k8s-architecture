@@ -42,7 +42,7 @@ spec:
         - name: NODE_ENV
           value: "production"
         - name: BETTER_AUTH_BASE_URL
-          value: "http://api.traveny.local"
+          value: "http://api-service:4000"
 ---
 apiVersion: v1
 kind: Service

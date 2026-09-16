@@ -23,9 +23,9 @@ spec:
         - containerPort: 3000
         env:
         - name: BACKEND_URL
-          value: "http://api.traveny.local"
+          value: "http://api-service:4000"
         - name: NEXT_PUBLIC_BACKEND_URL
-          value: "http://api.traveny.local"
+          value: "http://api-service:4000"
         - name: NODE_ENV
           value: "production"
         - name: PORT
