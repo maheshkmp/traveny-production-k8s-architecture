@@ -176,7 +176,16 @@ Monitor runtime resource consumption and thread loop health.
 | **Memory Usage (RAM in MB)** | `traveny_api_process_resident_memory_bytes / 1024 / 1024` | Tracks RAM footprint (RSS) to detect memory leaks before OOM kills. |
 | **CPU Usage Rate (%)** | `rate(traveny_api_process_cpu_user_seconds_total[5m]) * 100` | Monitors CPU core utilization percentage. |
 | **Event Loop Lag** | `traveny_api_nodejs_eventloop_lag_seconds` | Measures delays in the single-threaded event loop. Values > 0.1s indicate synchronous blocking. |
-| **Open File Descriptors** | `traveny_api_process_open_fds` | Tracks open sockets, files, and DB connections to prevent file handle exhaustion. |
+### 4. Kubernetes Node & Host Hardware Health (Node Exporter)
+Monitor physical or virtual host hardware metrics collected via `node-exporter`.
+
+| Insight | PromQL Query | Description & Use Case |
+|---------|--------------|------------------------|
+| **Host CPU Usage %** | `100 - (avg by (instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)` | Tracks total host CPU usage across all cores. |
+| **Host RAM Usage %** | `(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100` | Calculates actual RAM usage percentage of the host machine. |
+| **Disk Space Usage %** | `100 - ((node_filesystem_avail_bytes{mountpoint="/"} * 100) / node_filesystem_size_bytes{mountpoint="/"})` | Tracks root disk partition space utilization to prevent full disks. |
+| **Disk IOPS (Reads/Writes)** | `rate(node_disk_reads_completed_total[5m]) + rate(node_disk_writes_completed_total[5m])` | Monitors disk operations per second to detect database disk bottlenecks. |
+| **Network Traffic (Receive/Transmit)** | `rate(node_network_receive_bytes_total[5m])` / `rate(node_network_transmit_bytes_total[5m])` | Measures incoming and outgoing network bandwidth on host interfaces. |
 
 ## Grafana Dashboard Setup
 
