@@ -24,7 +24,8 @@ RUN bun build apps/api/server.ts \
   --minify \
   --external pg \
   --external @neondatabase/serverless \
-  --external ws
+  --external ws \
+  --external prom-client
 
 # Bundle Database Migrator into single file
 RUN bun build packages/core/src/database/migrate.ts \
@@ -47,7 +48,7 @@ COPY --from=builder /app/dist/migrate.js ./migrate.js
 COPY --from=builder /app/packages/core/src/database/migrations ./src/database/migrations
 
 # Install external dependencies so all transitive deps (like pg-types, postgres-bytea) are included correctly
-RUN bun add pg @neondatabase/serverless ws
+RUN bun add pg @neondatabase/serverless ws prom-client
 
 EXPOSE 4000
 CMD ["bun", "server.js"]

@@ -10,6 +10,8 @@ import { BASE_PATH } from "./constants";
 import { getDatabase } from "core/database";
 import { logger } from "hono/logger";
 
+import { httpRequestCounter, httpRequestDurationHistogram, register } from "./metrics";
+
 // Create a new OpenAPIHono instance with API Bindings
 export function createAPIRouter(): OpenAPIHono<APIBindings> {
   return new OpenAPIHono<APIBindings>({
@@ -21,6 +23,30 @@ export function createAPIRouter(): OpenAPIHono<APIBindings> {
 // Setup API
 export function setupAPI(): OpenAPIHono<APIBindings> {
   const api = createAPIRouter().basePath(BASE_PATH) as OpenAPI;
+
+  // Prometheus Metrics Collection Middleware
+  api.use("*", async (c, next) => {
+    if (c.req.path.endsWith("/metrics")) {
+      return next();
+    }
+    const start = performance.now();
+    await next();
+    const durationInSeconds = (performance.now() - start) / 1000;
+    const route = c.req.matchedRoutes?.[0]?.path || c.req.path;
+    const labels = {
+      method: c.req.method,
+      route,
+      status_code: c.res.status.toString(),
+    };
+    httpRequestCounter.inc(labels);
+    httpRequestDurationHistogram.observe(labels, durationInSeconds);
+  });
+
+  // Prometheus Endpoint
+  api.get("/metrics", async (c) => {
+    c.header("Content-Type", register.contentType);
+    return c.text(await register.metrics());
+  });
 
   // Logging Middleware
   api.use("*", logger());
