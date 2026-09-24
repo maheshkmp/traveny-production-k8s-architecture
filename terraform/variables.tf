@@ -1,29 +1,23 @@
-variable "region" {
-  description = "Target AWS Region"
+variable "aws_region" {
+  description = "AWS Region"
   type        = string
-  default     = "ap-south-1"
+  default     = "us-east-1"
 }
 
-
 variable "instance_type" {
-  description = "EC2 instance sizing (minimum t3.medium for kubeadm)"
+  description = "EC2 Instance Type"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.small"
+}
+
+variable "key_name" {
+  description = "AWS Key Pair Name for SSH access"
+  type        = string
+  default     = "traveny-ec2-key"
 }
 
 variable "environment" {
-  description = "Deployment environment (dev / prod)"
+  description = "Deployment Environment"
   type        = string
-  default     = "dev"
-}
-
-variable "my_ip" {
-  description = "Admin IP address allowed SSH and K8s API (6443) access"
-  type        = string
-}
-
-variable "ssh_public_key_path" {
-  description = "Path to local SSH public key"
-  type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "production"
 }
