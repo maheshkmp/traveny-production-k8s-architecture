@@ -52,23 +52,30 @@ export function configAuth(config: AuthConfigurations) {
   const authConfig = {
     // Support both BETTER_AUTH_BASE_URL (docker-compose) and BETTER_AUTH_URL (legacy)
     baseURL: process.env.BETTER_AUTH_BASE_URL || process.env.BETTER_AUTH_URL,
-    trustedOrigins: [
-      "http://localhost:3000",
-      "http://localhost:4000",
-      // Local Minikube domains
-      "http://traveny.local",
-      "http://api.traveny.local",
-      "https://traveny.local",
-      "https://api.traveny.local",
-      // Production domains
-      "https://traveny.com",
-      "https://www.traveny.com",
-      "https://api.traveny.com",
-      // Vercel deployment URLs (stable)
-      ...dynamicOrigins
-    ].filter((v, i, arr) => typeof v === "string" && arr.indexOf(v) === i) as string[],
-    // Trust request origin dynamically in dev/staging/IP deployments
-    allowAnyOrigin: !isProduction || !!process.env.ALLOW_ANY_ORIGIN,
+    trustedOrigins: (request: Request) => {
+      const origin = request.headers.get("origin") || request.headers.get("referer");
+      if (!origin) return true;
+
+      // Allow any IPv4 origin (e.g. http://13.126.125.245)
+      if (/^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin)) {
+        return true;
+      }
+
+      const allowed = [
+        "http://localhost:3000",
+        "http://localhost:4000",
+        "http://traveny.local",
+        "http://api.traveny.local",
+        "https://traveny.local",
+        "https://api.traveny.local",
+        "https://traveny.com",
+        "https://www.traveny.com",
+        "https://api.traveny.com",
+        ...dynamicOrigins
+      ];
+
+      return allowed.some((url) => url && origin.startsWith(url));
+    },
 
     database: drizzleAdapter(config.database, {
       provider: "pg",
