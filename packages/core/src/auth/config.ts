@@ -67,6 +67,8 @@ export function configAuth(config: AuthConfigurations) {
       // Vercel deployment URLs (stable)
       ...dynamicOrigins
     ].filter((v, i, arr) => typeof v === "string" && arr.indexOf(v) === i) as string[],
+    // Trust request origin dynamically in dev/staging/IP deployments
+    allowAnyOrigin: !isProduction || !!process.env.ALLOW_ANY_ORIGIN,
 
     database: drizzleAdapter(config.database, {
       provider: "pg",

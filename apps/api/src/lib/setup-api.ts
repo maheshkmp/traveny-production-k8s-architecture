@@ -67,11 +67,16 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
 
         if (allowedOrigins.includes(origin)) return origin;
 
-        if (origin.endsWith('.vercel.app') && process.env.NODE_ENV !== 'production') {
+        // Allow raw IP origins (e.g., http://13.126.125.245 or http://192.168.x.x)
+        if (origin && /^http:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin)) {
           return origin;
         }
 
-        return process.env.FRONTEND_URL || "https://traveny.com";
+        if (origin?.endsWith('.vercel.app') && process.env.NODE_ENV !== 'production') {
+          return origin;
+        }
+
+        return process.env.FRONTEND_URL || origin || "https://traveny.com";
       },
       allowHeaders: ["Content-Type", "Authorization", "Cookie", "X-Requested-With"],
       allowMethods: ["POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"],
