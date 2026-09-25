@@ -21,3 +21,15 @@ variable "environment" {
   type        = string
   default     = "production"
 }
+
+variable "my_ip" {
+  description = "Your personal IP address for restricted firewall access (CIDR format e.g. 203.0.113.25/32)"
+  type        = string
+  default     = "0.0.0.0/0"
+}
+
+variable "ssh_public_key_path" {
+  description = "Path to your local SSH public key"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
+}

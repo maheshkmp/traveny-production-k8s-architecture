@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -80,21 +80,27 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# 3. Security Group (Firewall Rules)
+# 3. Key Pair (Auto-upload local SSH public key)
+resource "aws_key_pair" "deployer" {
+  key_name   = "traveny-${var.environment}-key"
+  public_key = file(var.ssh_public_key_path)
+}
+
+# 4. Security Group (Firewall Rules)
 resource "aws_security_group" "k3s_sg" {
   name        = "traveny-k3s-sg"
   description = "Security group for Traveny K3s Cluster & Monitoring"
   vpc_id      = aws_vpc.main.id
 
-  # SSH Access
+  # SSH Access (Restricted to your IP if provided)
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.my_ip != "0.0.0.0/0" && var.my_ip != "" ? [var.my_ip] : ["0.0.0.0/0"]
   }
 
-  # HTTP Web Traffic
+  # HTTP Web Traffic (Public)
   ingress {
     from_port   = 80
     to_port     = 80
@@ -102,7 +108,7 @@ resource "aws_security_group" "k3s_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTPS Web Traffic
+  # HTTPS Web Traffic (Public)
   ingress {
     from_port   = 443
     to_port     = 443
@@ -110,12 +116,12 @@ resource "aws_security_group" "k3s_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Grafana Dashboard Access
+  # Grafana Dashboard Access (Restricted to your IP if provided)
   ingress {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.my_ip != "0.0.0.0/0" && var.my_ip != "" ? [var.my_ip] : ["0.0.0.0/0"]
   }
 
   # Outbound All Traffic
@@ -131,11 +137,11 @@ resource "aws_security_group" "k3s_sg" {
   }
 }
 
-# 4. EC2 Instance Definition
+# 5. EC2 Instance Definition
 resource "aws_instance" "k3s_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = var.key_name
+  key_name               = aws_key_pair.deployer.key_name
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.k3s_sg.id]
 
