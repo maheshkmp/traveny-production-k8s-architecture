@@ -33,10 +33,17 @@ export function configAuth(config: AuthConfigurations) {
     process.env.BETTER_AUTH_URL?.includes("localhost") ||
     process.env.NODE_ENV !== "production";
 
+  const isSecure =
+    process.env.BETTER_AUTH_BASE_URL?.startsWith("https://") ||
+    process.env.BETTER_AUTH_URL?.startsWith("https://") ||
+    process.env.FRONTEND_URL?.startsWith("https://");
+
   const isProduction = !isLocal && (
     !!process.env.VERCEL_ENV ||
     process.env.NODE_ENV === "production"
   );
+
+  const useSecureCookies = isProduction && isSecure;
 
   // Build dynamic trusted origins from env vars so Vercel preview URLs are always trusted.
   const dynamicOrigins: string[] = [];
@@ -250,9 +257,9 @@ export function configAuth(config: AuthConfigurations) {
       cookies: {
         session_token: {
           attributes: {
-            // SameSite=none requires Secure (HTTPS). Use lax for HTTP dev.
-            sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
-            secure: isProduction,
+            // SameSite=none requires Secure (HTTPS). Use lax for HTTP dev/staging.
+            sameSite: (useSecureCookies ? "none" : "lax") as "none" | "lax",
+            secure: useSecureCookies,
             httpOnly: true,
             // DO NOT use partitioned - it causes cookie isolation issues
             // where cookies are stored per-partition and can't be read consistently
@@ -267,7 +274,7 @@ export function configAuth(config: AuthConfigurations) {
       //   the Next.js proxy  at /api/[[...path]] strips the Domain attribute so cookies work.
       // - Custom domain (e.g., traveny.com + api.traveny.com):
       //   set COOKIE_DOMAIN=.traveny.com in the API's Vercel environment variables.
-      crossSubDomainCookies: isProduction && process.env.COOKIE_DOMAIN
+      crossSubDomainCookies: useSecureCookies && process.env.COOKIE_DOMAIN
         ? {
             enabled: true,
             domain: process.env.COOKIE_DOMAIN
@@ -278,8 +285,8 @@ export function configAuth(config: AuthConfigurations) {
       // That's why we use the proxy - so cookies appear to come from :3000
       defaultCookieAttributes: {
         // SameSite=none requires Secure=true. On HTTP localhost, use lax.
-        sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
-        secure: isProduction,
+        sameSite: (useSecureCookies ? "none" : "lax") as "none" | "lax",
+        secure: useSecureCookies,
         httpOnly: true,
         // REMOVED: partitioned - causes session null issues after signin
         // The partitioned attribute isolates cookies per top-level site,
