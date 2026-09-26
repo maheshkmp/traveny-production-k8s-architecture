@@ -49,9 +49,6 @@ const UsersListSchema = z.object({
 
 const protectedMiddleware = [authMiddleware, adminMiddleware];
 
-// ── Routes ───────────────────────────────────────────────────────────────────
-
-// GET /users — list all users
 const listUsersRoute = createRoute({
   tags: ["Users"],
   method: "get",
@@ -70,7 +67,6 @@ const listUsersRoute = createRoute({
   },
 });
 
-// GET /users/:id — get single user
 const getUserRoute = createRoute({
   tags: ["Users"],
   method: "get",
@@ -87,7 +83,6 @@ const getUserRoute = createRoute({
   },
 });
 
-// PATCH /users/:id — update user role / ban status
 const updateUserRoute = createRoute({
   tags: ["Users"],
   method: "patch",
@@ -106,7 +101,6 @@ const updateUserRoute = createRoute({
   },
 });
 
-// DELETE /users/:id — delete a user
 const deleteUserRoute = createRoute({
   tags: ["Users"],
   method: "delete",
@@ -124,11 +118,7 @@ const deleteUserRoute = createRoute({
   },
 });
 
-// ── Router ───────────────────────────────────────────────────────────────────
-
 const router = createAPIRouter()
-
-  // List users
   .openapi(listUsersRoute, async (c) => {
     const db = c.get("db");
     const { page = 1, limit = 20 } = c.req.valid("query");
@@ -165,8 +155,6 @@ const router = createAPIRouter()
 
     return c.json({ users: rows, total, page, limit }, HttpStatusCodes.OK);
   })
-
-  // Get one user
   .openapi(getUserRoute, async (c) => {
     const db = c.get("db");
     const { id } = c.req.valid("param");
@@ -183,8 +171,6 @@ const router = createAPIRouter()
 
     return c.json(user, HttpStatusCodes.OK);
   })
-
-  // Update user
   .openapi(updateUserRoute, async (c) => {
     const db = c.get("db");
     const { id } = c.req.valid("param");
@@ -208,8 +194,6 @@ const router = createAPIRouter()
 
     return c.json(updated, HttpStatusCodes.OK);
   })
-
-  // Delete user
   .openapi(deleteUserRoute, async (c) => {
     const db = c.get("db");
     const { id } = c.req.valid("param");
@@ -224,7 +208,6 @@ const router = createAPIRouter()
       return c.json({ message: "Not Found" }, HttpStatusCodes.NOT_FOUND);
     }
 
-    // Prevent self-deletion
     const currentUser = c.get("user");
     if (currentUser?.id === id) {
       return c.json({ message: "Cannot delete your own account" }, HttpStatusCodes.BAD_REQUEST);

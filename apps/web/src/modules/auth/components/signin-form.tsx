@@ -91,7 +91,6 @@ export function SigninForm({
 
   return (
     <div className={cn("w-full", className)} {...props}>
-      {/* Heading */}
       <div className="mb-7 text-center">
         <h1 className="font-playfair text-3xl font-bold text-brand-navy mb-1.5">
           Welcome Back
@@ -101,7 +100,6 @@ export function SigninForm({
         </p>
       </div>
 
-      {/* Form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSignin)} className="space-y-4">
           <FormField
@@ -159,7 +157,6 @@ export function SigninForm({
         </form>
       </Form>
 
-      {/* Footer */}
       <p className="mt-6 text-center text-sm text-brand-muted">
         Don't have an account?{" "}
         <Link href="/signup" className="text-gold-dark font-medium hover:text-gold underline-offset-4 hover:underline transition-colors">

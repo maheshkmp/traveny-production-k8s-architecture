@@ -12,7 +12,6 @@ import { logger } from "hono/logger";
 
 import { httpRequestCounter, httpRequestDurationHistogram, register } from "./metrics";
 
-// Create a new OpenAPIHono instance with API Bindings
 export function createAPIRouter(): OpenAPIHono<APIBindings> {
   return new OpenAPIHono<APIBindings>({
     strict: false,
@@ -20,11 +19,9 @@ export function createAPIRouter(): OpenAPIHono<APIBindings> {
   });
 }
 
-// Setup API
 export function setupAPI(): OpenAPIHono<APIBindings> {
   const api = createAPIRouter().basePath(BASE_PATH) as OpenAPI;
 
-  // Prometheus Metrics Collection Middleware
   api.use("*", async (c, next) => {
     if (c.req.path.endsWith("/metrics")) {
       return next();
@@ -42,16 +39,13 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
     httpRequestDurationHistogram.observe(labels, durationInSeconds);
   });
 
-  // Prometheus Endpoint
   api.get("/metrics", async (c) => {
     c.header("Content-Type", register.contentType);
     return c.text(await register.metrics());
   });
 
-  // Logging Middleware
   api.use("*", logger());
 
-  // CORS Middleware
   api.use(
     "*",
     cors({
@@ -67,7 +61,6 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
 
         if (allowedOrigins.includes(origin)) return origin;
 
-        // Allow raw IP origins (e.g., http://13.126.125.245 or http://192.168.x.x)
         if (origin && /^http:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin)) {
           return origin;
         }
@@ -86,18 +79,14 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
     })
   );
 
-  // Serve Favicon for fun
   api.use("*", serveEmojiFavicon("🍔"));
 
-  // Inject Database into context
   api.use("*", async (c, next) => {
     const database = getDatabase();
     c.set("db", database);
     await next();
   });
 
-  // Register BetterAuth Routing for API
-  // Mount auth handler for all HTTP methods at /auth/* path
   api.all("/auth/*", async (c) => {
     const auth = getAuth();
     const pathname = new URL(c.req.url).pathname;
@@ -112,7 +101,6 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
     
     const response = await auth.handler(c.req.raw);
     
-    // Log response details for debugging
     const setCookieHeaders = response.headers.getSetCookie?.() || [];
     if (setCookieHeaders.length > 0) {
       console.log("[API Auth] Setting cookies:", {
@@ -124,7 +112,6 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
       });
     }
     
-    // For get-session requests, log the response body to see if session is null
     if (pathname.includes('/get-session')) {
       const clonedResponse = response.clone();
       const body = await clonedResponse.text();
@@ -144,21 +131,18 @@ export function setupAPI(): OpenAPIHono<APIBindings> {
     return response;
   });
 
-  // Error Handling Middleware with detailed validation error logging
   api.onError((err, c) => {
     console.error("[API Error]", {
       path: c.req.path,
       method: c.req.method,
       error: err.message,
       stack: err.stack,
-      // Log validation error details if available
       cause: err.cause,
     });
     
     return onError(err, c);
   });
 
-  // Not Found Middleware
   api.notFound(notFound);
 
   return api;

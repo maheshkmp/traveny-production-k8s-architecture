@@ -15,27 +15,21 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[95vh] flex flex-col">
-
-      {/* Background image */}
       <div className="absolute inset-0">
         <img src="/images/hero-car.jpg"
           className="w-full h-full object-cover object-center" alt="" />
-        {/* Navy gradient from left — stronger than before */}
         <div className="absolute inset-0
           bg-gradient-to-r
           from-brand-navy/95
           via-brand-navy/70
           to-brand-navy/10" />
-        {/* Bottom fade to cream */}
         <div className="absolute bottom-0 inset-x-0 h-32
           bg-gradient-to-t from-brand-cream to-transparent" />
       </div>
 
-      {/* Content — now on DARK background (navy), text is light */}
       <div className="relative z-10 flex-1 flex flex-col
         justify-center px-8 lg:px-24 pt-32 pb-20 max-w-3xl">
 
-        {/* Eyebrow */}
         <div className="flex items-center gap-3 mb-10">
           <div className="w-10 h-px bg-gold" />
           <span className="text-xs tracking-[0.3em] uppercase
@@ -44,7 +38,6 @@ export function Hero() {
           </span>
         </div>
 
-        {/* Title — white on navy */}
         <h1 className="font-playfair text-6xl lg:text-8xl
           font-bold text-white leading-[0.92]
           tracking-tight mb-8">
@@ -58,7 +51,6 @@ export function Hero() {
           {t.hero.subtitle}
         </p>
 
-        {/* CTAs */}
         <div className="flex flex-wrap items-center gap-6">
           <a href="#booking" className="group flex items-center gap-3
             bg-gold text-brand-navy font-medium
@@ -79,7 +71,6 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Stats bar — navy background */}
       <div className="relative z-10 bg-brand-navy/90
         backdrop-blur-sm border-t border-white/10">
         <div className="max-w-5xl mx-auto

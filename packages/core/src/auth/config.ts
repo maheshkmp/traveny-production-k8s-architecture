@@ -92,17 +92,15 @@ export function configAuth(config: AuthConfigurations) {
       openAPI(),
       emailOTP({
         otpLength: 6,
-        expiresIn: 600, // 10 minutes in seconds
+        expiresIn: 600,
         disableSignUp: false,
         sendVerificationOTP: async ({ email, otp, type }) => {
           try {
-            // Validate OTP - early return if undefined
             if (typeof otp !== "string" || !otp) {
               console.error("[emailOTP] OTP is undefined or invalid");
               return;
             }
 
-            // Get user name from database for personalization
             let userName = email.split("@")[0];
             try {
               const [user] = await config.database
@@ -115,7 +113,6 @@ export function configAuth(config: AuthConfigurations) {
               console.log("[emailOTP] Could not fetch user name, using email:", err);
             }
 
-            // Select template and subject based on type
             let subject = "";
             let html = "";
             
@@ -129,7 +126,6 @@ export function configAuth(config: AuthConfigurations) {
               subject = "Your Traveny sign-in code";
               html = signInOTPTemplate({ name: userName, otp } as { name: string; otp: string });
             } else {
-              // Fallback for any other type
               subject = "Your Traveny verification code";
               html = emailVerificationOTPTemplate({ name: userName, otp } as { name: string; otp: string });
             }
@@ -153,9 +149,8 @@ export function configAuth(config: AuthConfigurations) {
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 6,
-      requireEmailVerification: false, // TEMP: disabled — re-enable for production
+      requireEmailVerification: false,
       autoSignIn: true,
-      // Email verification hook
       sendVerificationEmail: async ({ user, url }: { user: any; url: string }) => {
         try {
           const userName = user.name || user.email.split("@")[0];
@@ -173,7 +168,6 @@ export function configAuth(config: AuthConfigurations) {
           console.error("[Auth] Failed to send verification email:", error);
         }
       },
-      // Password reset hook
       sendResetPassword: async ({ user, url }: { user: any; url: string }) => {
         try {
           const userName = user.name || user.email.split("@")[0];
@@ -193,7 +187,6 @@ export function configAuth(config: AuthConfigurations) {
       },
     },
 
-    // Configure Google OAuth as an object
     socialProviders: (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? {
           google: {
@@ -203,13 +196,10 @@ export function configAuth(config: AuthConfigurations) {
         }
       : undefined),
 
-    // Database hooks for lifecycle events
     databaseHooks: {
       user: {
         create: {
           after: async (user: any) => {
-            // Default role to "user" for all new sign-ups.
-            // Admin-created users will have an explicit role already set by the plugin.
             if (!user.role) {
               try {
                 await config.database
@@ -228,12 +218,9 @@ export function configAuth(config: AuthConfigurations) {
         update: {
           after: async (user: any) => {
             try {
-              // Check if emailVerified was just set to true
-              // Send welcome email only after successful email verification
               if (user.emailVerified === true) {
                 console.log("[Auth] Email verified for user:", user.email);
                 
-                // Send welcome email
                 const userName = user.name || user.email.split("@")[0];
                 const html = welcomeTemplate({ name: userName });
                 await sendEmail({
@@ -257,41 +244,23 @@ export function configAuth(config: AuthConfigurations) {
       cookies: {
         session_token: {
           attributes: {
-            // SameSite=none requires Secure (HTTPS). Use lax for HTTP dev/staging.
             sameSite: (useSecureCookies ? "none" : "lax") as "none" | "lax",
             secure: useSecureCookies,
             httpOnly: true,
-            // DO NOT use partitioned - it causes cookie isolation issues
-            // where cookies are stored per-partition and can't be read consistently
-            // Set path to "/" so cookie is available across entire domain
             path: "/"
           }
         }
       },
-      // Cross-subdomain cookies: only set when COOKIE_DOMAIN env var is explicitly configured.
-      // - Local dev: not set (proxy handles same-origin cookies).
-      // - Vercel *.vercel.app: NOT set — web and API are on different vercel.app subdomains;
-      //   the Next.js proxy  at /api/[[...path]] strips the Domain attribute so cookies work.
-      // - Custom domain (e.g., traveny.com + api.traveny.com):
-      //   set COOKIE_DOMAIN=.traveny.com in the API's Vercel environment variables.
       crossSubDomainCookies: useSecureCookies && process.env.COOKIE_DOMAIN
         ? {
             enabled: true,
             domain: process.env.COOKIE_DOMAIN
           }
         : undefined,
-      // IMPORTANT: When domain is not set (localhost), cookies are tied to exact origin
-      // This means cookies from backend:4000 won't work on frontend:3000
-      // That's why we use the proxy - so cookies appear to come from :3000
       defaultCookieAttributes: {
-        // SameSite=none requires Secure=true. On HTTP localhost, use lax.
         sameSite: (useSecureCookies ? "none" : "lax") as "none" | "lax",
         secure: useSecureCookies,
         httpOnly: true,
-        // REMOVED: partitioned - causes session null issues after signin
-        // The partitioned attribute isolates cookies per top-level site,
-        // which breaks session persistence in cross-origin scenarios
-        // Ensure cookies are available across the entire domain
         path: "/"
       }
     }
