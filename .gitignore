@@ -59,3 +59,5 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+/k8s/secrets.yaml
