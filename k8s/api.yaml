@@ -19,7 +19,7 @@ spec:
       - name: api
         image: ghcr.io/maheshkmp/traveny/api:latest
         imagePullPolicy: Always
-        command: ["node", "non_existent_entrypoint.js"]
+        CMD ["bun", "server.js"]
         ports:
         - containerPort: 4000
         env:
