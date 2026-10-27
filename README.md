@@ -14,18 +14,6 @@ Welcome to **Traveny**, an enterprise-grade monorepo SaaS platform built with **
 This repository demonstrates a 100% automated, production-ready DevOps infrastructure featuring **Terraform IaC**, **Self-Managed AWS EC2 Kubernetes (`kubeadm`)**, **NGINX Ingress with Automated Let's Encrypt TLS (`cert-manager`)**, **Automated K8s DB Migrations**, **GHCR Container Registry CI/CD**, and full-stack **Observability (Prometheus & Grafana)**.
 
 ---
-Related AWS Tutorial
-
-As part of my ongoing DevOps learning journey, I also created a separate hands-on tutorial demonstrating how to connect a custom domain to existing Amazon EC2 instances using AWS Route 53, an Application Load Balancer (ALB), and AWS Certificate Manager (ACM).
-
-The tutorial covers DNS delegation, hosted zones, target groups, load balancer listeners, SSL/TLS certificate validation, and HTTPS configuration.
-
-This complements the cloud infrastructure concepts demonstrated in this repository and provides a practical walkthrough of a related AWS deployment workflow.
-
-
-
-Click the thumbnail to watch the full tutorial on YouTube.
-[![Watch the tutorial](assets/yt_tutorial_thumbnail.jpeg)](https://www.youtube.com/watch?v=oWgYMQB4zZ0)
 
 ## 🏛️ End-to-End System Architecture
 
@@ -280,6 +268,18 @@ kubectl port-forward -n monitoring svc/prometheus-grafana 3001:80
 Open **`http://localhost:3001`** (User: `admin`) to view real-time Kubernetes dashboards!
 
 ---
+
+## Related AWS Tutorial
+
+For the **Traveny project (`traveny.com`)**, I also created a separate hands-on AWS tutorial demonstrating how to connect a custom domain to existing Amazon EC2 instances using Amazon Route 53, an Application Load Balancer (ALB), and AWS Certificate Manager (ACM).
+
+The tutorial covers DNS delegation, hosted zones, target groups, load balancer listeners, SSL/TLS certificate validation, and HTTPS configuration.
+
+This tutorial complements the AWS infrastructure and deployment concepts demonstrated in this repository by providing a practical walkthrough of domain configuration and secure application access on AWS.
+
+[![Watch the AWS Route 53, ALB & HTTPS Tutorial](assets/yt_tutorial_thumbnail.jpeg)](https://www.youtube.com/watch?v=oWgYMQB4zZ0)
+
+*Click the thumbnail to watch the full tutorial on YouTube.*
 
 ## 📜 License
 This project is open-source and available under the [MIT License](LICENSE).
