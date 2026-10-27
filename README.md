@@ -14,7 +14,17 @@ Welcome to **Traveny**, an enterprise-grade monorepo SaaS platform built with **
 This repository demonstrates a 100% automated, production-ready DevOps infrastructure featuring **Terraform IaC**, **Self-Managed AWS EC2 Kubernetes (`kubeadm`)**, **NGINX Ingress with Automated Let's Encrypt TLS (`cert-manager`)**, **Automated K8s DB Migrations**, **GHCR Container Registry CI/CD**, and full-stack **Observability (Prometheus & Grafana)**.
 
 ---
+Related AWS Tutorial
 
+As part of my ongoing DevOps learning journey, I also created a separate hands-on tutorial demonstrating how to connect a custom domain to existing Amazon EC2 instances using AWS Route 53, an Application Load Balancer (ALB), and AWS Certificate Manager (ACM).
+
+The tutorial covers DNS delegation, hosted zones, target groups, load balancer listeners, SSL/TLS certificate validation, and HTTPS configuration.
+
+This complements the cloud infrastructure concepts demonstrated in this repository and provides a practical walkthrough of a related AWS deployment workflow.
+
+
+
+Click the thumbnail to watch the full tutorial on YouTube.
 [![Watch the tutorial](assets/yt_tutorial_thumbnail.jpeg)](https://www.youtube.com/watch?v=oWgYMQB4zZ0)
 
 ## 🏛️ End-to-End System Architecture
