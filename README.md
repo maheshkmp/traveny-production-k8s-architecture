@@ -15,6 +15,8 @@ This repository demonstrates a 100% automated, production-ready DevOps infrastru
 
 ---
 
+[![Watch the tutorial](assets/yt_tutorial_thumbnail.jpeg)](https://www.youtube.com/watch?v=oWgYMQB4zZ0)
+
 ## 🏛️ End-to-End System Architecture
 
 ```
